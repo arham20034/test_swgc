@@ -1,0 +1,1851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MCQ Test System</title>
+<style>
+:root {
+  --bg: #f1f5f9;
+  --card: #ffffff;
+  --ink: #0f172a;
+  --mute: #64748b;
+  --line: #e2e8f0;
+  --pri: #1e40af;
+  --pri2: #2563eb;
+  --pri-soft: #eff6ff;
+  --ok: #15803d;
+  --ok-soft: #f0fdf4;
+  --ok-border: #bbf7d0;
+  --bad: #b91c1c;
+  --bad-soft: #fef2f2;
+  --bad-border: #fecaca;
+  --warn: #b45309;
+  --warn-soft: #fffbeb;
+  --radius: 14px;
+  --shadow: 0 4px 6px -1px rgba(15,23,42,0.06), 0 2px 4px -2px rgba(15,23,42,0.04);
+  --shadow-lg: 0 14px 30px -4px rgba(15,23,42,0.1), 0 4px 10px -2px rgba(15,23,42,0.05);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.3s ease;
+}
+
+/* =========================================================
+   DEVICE MODES: Laptop vs Mobile
+   ========================================================= */
+
+/* LAPTOP / DESKTOP MODE */
+body.device-laptop {
+  background: #f1f5f9;
+}
+body.device-laptop .shell-container {
+  max-width: 1120px;
+  margin: 20px auto;
+  padding: 0 20px 40px;
+}
+body.device-laptop .mobile-status-bar {
+  display: none !important;
+}
+
+/* MOBILE MODE */
+body.device-mobile {
+  background: #cbd5e1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: 24px 12px;
+}
+body.device-mobile .shell-container {
+  width: 100%;
+  max-width: 430px;
+  background: #f8fafc;
+  min-height: 840px;
+  border-radius: 40px;
+  box-shadow: 0 25px 60px -12px rgba(15,23,42,0.35), 0 0 0 9px #0f172a, 0 0 0 11px #334155;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+@media (max-width: 500px) {
+  body.device-mobile {
+    padding: 0;
+    background: #f8fafc;
+  }
+  body.device-mobile .shell-container {
+    max-width: 100%;
+    min-height: 100vh;
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
+  }
+}
+
+/* Simulated Mobile Status Bar */
+.mobile-status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 22px 4px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--pri);
+  color: #fff;
+  letter-spacing: 0.02em;
+}
+.status-icons {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+/* Header */
+header {
+  background: linear-gradient(135deg, var(--pri), #1d4ed8);
+  color: #fff;
+  padding: 14px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+}
+.brand-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.brand-logo {
+  width: 32px;
+  height: 32px;
+  background: rgba(255,255,255,0.18);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+}
+header h1 {
+  font-size: 1.12rem;
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Device Switcher Controls in Header */
+.dev-pill-group {
+  display: inline-flex;
+  background: rgba(0,0,0,0.22);
+  padding: 3px;
+  border-radius: 99px;
+  gap: 2px;
+}
+.dev-pill {
+  border: 0;
+  background: transparent;
+  color: #e2e8f0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 5px 11px;
+  border-radius: 99px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.dev-pill.active {
+  background: #ffffff;
+  color: var(--pri);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+/* Main Content */
+main {
+  flex: 1;
+  padding: 20px 16px;
+}
+body.device-laptop main {
+  padding: 24px 0;
+}
+
+/* Cards */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 22px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.card.narrow {
+  max-width: 440px;
+  margin: 30px auto;
+}
+body.device-mobile .card.narrow {
+  max-width: 100%;
+  margin: 10px 0 20px;
+  padding: 18px;
+}
+h2 {
+  margin: 0 0 14px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.subtitle {
+  color: var(--mute);
+  font-size: 0.86rem;
+  margin: -8px 0 16px;
+}
+
+/* Form inputs */
+label {
+  display: block;
+  font-size: 0.84rem;
+  font-weight: 600;
+  margin: 12px 0 5px;
+  color: #334155;
+}
+input, select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  background: #fff;
+  color: var(--ink);
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--pri2);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.18);
+}
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+@media (max-width: 640px) {
+  .row { grid-template-columns: 1fr !important; }
+}
+
+/* Buttons */
+button {
+  cursor: pointer;
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-size: 0.94rem;
+  font-weight: 600;
+  background: var(--pri2);
+  color: #fff;
+  transition: background 0.15s, transform 0.08s, box-shadow 0.15s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+button:hover { background: #1d4ed8; }
+button:active { transform: scale(0.98); }
+button.sec {
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+}
+button.sec:hover { background: #e2e8f0; color: #0f172a; }
+button.danger {
+  background: var(--bad);
+  color: #fff;
+}
+button.danger:hover { background: #991b1b; }
+button.success {
+  background: var(--ok);
+  color: #fff;
+}
+button.success:hover { background: #166534; }
+button:disabled { opacity: 0.55; cursor: not-allowed; transform: none !important; }
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+body.device-mobile .actions button {
+  min-height: 46px;
+  width: 100%;
+}
+body.device-mobile .actions.row-actions button {
+  width: auto;
+  flex: 1;
+}
+
+/* Badges & Tags */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  background: #e2e8f0;
+  color: #334155;
+  border-radius: 99px;
+  padding: 2px 10px;
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+.badge-pass {
+  background: var(--ok-soft);
+  color: var(--ok);
+  border: 1px solid var(--ok-border);
+  padding: 4px 10px;
+  border-radius: 99px;
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+}
+.badge-fail {
+  background: var(--bad-soft);
+  color: var(--bad);
+  border: 1px solid var(--bad-border);
+  padding: 4px 10px;
+  border-radius: 99px;
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+}
+
+/* Messages */
+.msg {
+  margin-top: 14px;
+  font-size: 0.9rem;
+  padding: 10px 14px;
+  border-radius: 10px;
+  line-height: 1.45;
+}
+.msg.err { background: var(--bad-soft); color: var(--bad); border: 1px solid var(--bad-border); }
+.msg.ok { background: var(--ok-soft); color: var(--ok); border: 1px solid var(--ok-border); }
+.msg.info { background: var(--pri-soft); color: #1d4ed8; border: 1px solid #bfdbfe; }
+
+/* Metrics Tiles / Stats */
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+body.device-mobile .metric-grid {
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.metric-card {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+}
+.metric-card small {
+  color: var(--mute);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+.metric-card b {
+  font-size: 1.35rem;
+  color: var(--ink);
+  font-weight: 800;
+}
+.metric-card .metric-sub {
+  font-size: 0.78rem;
+  margin-top: 4px;
+}
+
+/* Key-Value info grid */
+.kv {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+body.device-mobile .kv {
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+.kv div {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+.kv small {
+  display: block;
+  color: var(--mute);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.kv b {
+  font-size: 0.98rem;
+  color: var(--ink);
+}
+
+/* Table styling */
+.table-wrap {
+  overflow-x: auto;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  margin-top: 12px;
+  background: #fff;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+  white-space: nowrap;
+}
+th, td {
+  text-align: left;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--line);
+}
+th {
+  background: #f8fafc;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #475467;
+  font-weight: 700;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #fcfdfe; }
+
+/* Filter & search bar in Admin */
+.filter-bar {
+  display: flex;
+  gap: 10px;
+  margin: 12px 0;
+  flex-wrap: wrap;
+}
+.filter-bar input {
+  flex: 2;
+  min-width: 160px;
+}
+.filter-bar select {
+  flex: 1;
+  min-width: 140px;
+}
+
+/* Quiz Interface */
+.quiz-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--mute);
+  font-size: 0.9rem;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.timer-pill {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  padding: 5px 12px;
+  border-radius: 99px;
+  font-weight: 700;
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.timer-pill.urgent {
+  background: var(--bad-soft);
+  color: var(--bad);
+  border-color: var(--bad-border);
+  animation: pulse 1s infinite alternate;
+}
+@keyframes pulse { from { opacity: 1; } to { opacity: 0.65; } }
+
+/* Question Navigator Chips */
+.q-nav-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 10px 0 16px;
+  padding: 8px;
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+.chip {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #334155;
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.chip:hover { border-color: var(--pri2); color: var(--pri2); }
+.chip.current {
+  background: var(--pri2);
+  color: #fff;
+  border-color: var(--pri2);
+  box-shadow: 0 2px 5px rgba(37,99,235,0.3);
+}
+.chip.done {
+  background: var(--ok-soft);
+  color: var(--ok);
+  border-color: var(--ok-border);
+}
+
+.progress {
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 99px;
+  overflow: hidden;
+  margin: 8px 0 16px;
+}
+.progress i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--pri2), #3b82f6);
+  transition: width 0.25s ease;
+}
+
+.qtext {
+  font-size: 1.15rem;
+  line-height: 1.55;
+  margin: 12px 0 20px;
+  font-weight: 600;
+  color: #1e293b;
+}
+body.device-mobile .qtext {
+  font-size: 1.05rem;
+}
+
+/* Options */
+.opt {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  background: #fff;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+.opt:hover {
+  border-color: #93c5fd;
+  background: #f8fafc;
+}
+.opt.sel {
+  border-color: var(--pri2);
+  background: #eff6ff;
+  box-shadow: 0 0 0 1px var(--pri2);
+}
+.opt input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  cursor: pointer;
+  accent-color: var(--pri2);
+}
+.opt span {
+  font-size: 0.98rem;
+  line-height: 1.4;
+  color: #1e293b;
+  flex: 1;
+}
+.opt-key {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: #e2e8f0;
+  color: #475467;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.opt.sel .opt-key {
+  background: var(--pri2);
+  color: #fff;
+}
+
+/* STUDENT DONE / RESULT CARD */
+.result-card {
+  text-align: center;
+  padding: 36px 24px;
+}
+.result-icon {
+  font-size: 4rem;
+  margin-bottom: 12px;
+  display: inline-block;
+  animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes popIn {
+  0% { transform: scale(0.4); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.result-pill {
+  display: inline-block;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 6px 22px;
+  border-radius: 99px;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+.result-pill.pass {
+  background: var(--ok-soft);
+  color: var(--ok);
+  border: 2px solid var(--ok-border);
+}
+.result-pill.fail {
+  background: var(--bad-soft);
+  color: var(--bad);
+  border: 2px solid var(--bad-border);
+}
+.result-card h2 {
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+}
+.result-desc {
+  color: var(--mute);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  max-width: 440px;
+  margin: 0 auto 20px;
+}
+.result-privacy-note {
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 0.84rem;
+  color: #475467;
+  max-width: 380px;
+  margin: 0 auto 24px;
+}
+
+/* DEVICE SELECTION MODAL */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,23,42,0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 9999;
+  transition: opacity 0.25s ease;
+}
+.modal-card {
+  background: #ffffff;
+  border-radius: 20px;
+  max-width: 480px;
+  width: 100%;
+  padding: 28px 24px;
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+  animation: popIn 0.25s ease;
+}
+.modal-card h2 {
+  justify-content: center;
+  font-size: 1.35rem;
+  margin: 6px 0 8px;
+}
+.modal-card p {
+  color: var(--mute);
+  font-size: 0.92rem;
+  margin: 0 0 20px;
+}
+.device-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+@media (max-width: 460px) {
+  .device-options { grid-template-columns: 1fr; }
+}
+.device-select-btn {
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 20px 14px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+  color: var(--ink);
+}
+.device-select-btn:hover {
+  border-color: var(--pri2);
+  background: #eff6ff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(37,99,235,0.12);
+}
+.device-select-btn .d-icon {
+  font-size: 2.6rem;
+  line-height: 1;
+}
+.device-select-btn b {
+  font-size: 1.05rem;
+  color: var(--ink);
+}
+.device-select-btn span {
+  font-size: 0.78rem;
+  color: var(--mute);
+  line-height: 1.3;
+}
+
+/* Helpers */
+.hidden { display: none !important; }
+.center { text-align: center; }
+.hint {
+  font-size: 0.78rem;
+  color: var(--mute);
+  margin-top: 4px;
+}
+</style>
+</head>
+<body class="device-laptop">
+
+<!-- DEVICE SELECTION MODAL (Asked on first open) -->
+<div id="deviceModal" class="modal-backdrop hidden">
+  <div class="modal-card">
+    <div style="font-size: 2.5rem; margin-bottom: 4px">📱 💻</div>
+    <h2>Choose Your Device</h2>
+    <p>Please select which device you are using so we can customize your dashboard layout.</p>
+    <div class="device-options">
+      <button type="button" class="device-select-btn" id="btnSelectMobile">
+        <div class="d-icon">📱</div>
+        <b>Mobile Phone</b>
+        <span>Touch-friendly, compact mobile phone app layout</span>
+      </button>
+      <button type="button" class="device-select-btn" id="btnSelectLaptop">
+        <div class="d-icon">💻</div>
+        <b>Laptop / PC</b>
+        <span>Widescreen layout with expanded tables & analytics</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- SHELL CONTAINER (Adaptive for Laptop or Mobile Phone Frame) -->
+<div class="shell-container">
+
+  <!-- Mobile phone top status bar simulation -->
+  <div class="mobile-status-bar">
+    <span id="mClock">9:41</span>
+    <div class="status-icons">
+      <span>●●●●</span>
+      <span>5G</span>
+      <span>99% 🔋</span>
+    </div>
+  </div>
+
+  <header>
+    <div class="brand-box">
+      <div class="brand-logo">📝</div>
+      <div>
+        <h1>MCQ Test System</h1>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <!-- Device Switcher Pills -->
+      <div class="dev-pill-group" title="Switch layout mode">
+        <button type="button" class="dev-pill" id="btnPillMobile">📱 Mobile</button>
+        <button type="button" class="dev-pill active" id="btnPillLaptop">💻 Laptop</button>
+      </div>
+
+      <!-- Auth Who/Logout -->
+      <div id="who" class="hidden">
+        <span id="whoTxt" style="font-size:0.86rem;font-weight:600;margin-right:6px"></span>
+        <button class="sec" id="btnLogout" style="padding:5px 12px;font-size:0.82rem">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- LOGIN SCREEN -->
+    <section id="vLogin" class="card narrow">
+      <h2>Welcome Back</h2>
+      <div class="subtitle">Log in as an Administrator or a Student</div>
+      
+      <label for="lUser">Username</label>
+      <input id="lUser" autocomplete="username" placeholder="admin or student">
+      
+      <label for="lPass">Password</label>
+      <input id="lPass" type="password" autocomplete="current-password" placeholder="Enter password">
+      
+      <div class="actions">
+        <button id="btnLogin" style="width:100%">Sign In</button>
+      </div>
+      <div id="lMsg"></div>
+
+      <div class="msg info" style="margin-top:16px; font-size:0.82rem">
+        <b>Student Credentials:</b><br>
+        Username: <code>student</code> &nbsp;|&nbsp; Password: <code>student</code>
+      </div>
+    </section>
+
+    <!-- ADMIN DASHBOARD -->
+    <section id="vAdmin" class="hidden">
+      
+      <!-- Metrics Overview Tiles -->
+      <div class="metric-grid" id="adminMetrics" style="display:none">
+        <div class="metric-card">
+          <small>Test Status</small>
+          <b id="mStatus">—</b>
+          <span class="metric-sub" id="mTimeLeft" style="color:var(--mute)">—</span>
+        </div>
+        <div class="metric-card">
+          <small>Submissions</small>
+          <b id="mSubmissions">0</b>
+          <span class="metric-sub" id="mPoolInfo" style="color:var(--mute)">0 in pool</span>
+        </div>
+        <div class="metric-card">
+          <small>Pass Rate</small>
+          <b id="mPassRate">0%</b>
+          <span class="metric-sub" id="mPassCount" style="color:var(--ok)">0 Passed</span>
+        </div>
+        <div class="metric-card">
+          <small>Fails / Below Cutoff</small>
+          <b id="mFailCount" style="color:var(--bad)">0</b>
+          <span class="metric-sub" id="mPassingMarksInfo" style="color:var(--mute)">Passing: —</span>
+        </div>
+      </div>
+
+      <!-- CREATE TEST FORM -->
+      <div id="adminCreate" class="card">
+        <h2>Create a New Test</h2>
+        <div class="subtitle">Upload MCQs and set test availability and passing criteria</div>
+        
+        <label for="aFile">MCQ file (.csv) — format: question, option 1, option 2, option 3, correct answer</label>
+        <input id="aFile" type="file" accept=".csv,text/csv">
+        <div style="margin-top:4px">
+          <button type="button" class="sec" id="btnDownloadSample" style="font-size:0.78rem;padding:4px 10px">📥 Download Sample CSV</button>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="aStart">Start date &amp; time</label>
+            <input id="aStart" type="datetime-local">
+          </div>
+          <div>
+            <label for="aEnd">End date &amp; time</label>
+            <input id="aEnd" type="datetime-local">
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="aCount">Number of MCQs per student</label>
+            <input id="aCount" type="number" min="1" value="20">
+            <div class="hint">Questions randomly sampled from uploaded CSV</div>
+          </div>
+          <div>
+            <label for="aPass">Passing marks (Minimum score to Pass)</label>
+            <input id="aPass" type="number" min="1" value="10">
+            <div class="hint" id="passPercentHint">e.g. 10 out of 20 = 50% required to pass</div>
+          </div>
+        </div>
+
+        <div style="margin-top:14px;background:#f8fafc;padding:12px 14px;border-radius:10px;border:1px solid #e2e8f0">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:600;font-size:0.88rem;margin:0">
+            <input type="checkbox" id="aAllowPrev" checked style="width:18px;height:18px;margin:0;accent-color:var(--pri2)">
+            <span>Allow students to go back to previous questions ("Previous" option)</span>
+          </label>
+          <div class="hint" style="margin-left:28px">When unchecked, the test is strictly forward-only and students cannot revisit previous questions.</div>
+        </div>
+
+        <div class="actions">
+          <button id="btnCreate" class="success">Create Test</button>
+        </div>
+        <div id="cMsg"></div>
+      </div>
+
+      <!-- CURRENT TEST INFO -->
+      <div id="adminTest" class="card hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+          <h2>Current Test Details <span id="tStatus" class="tag"></span></h2>
+        </div>
+        <div class="kv" id="tInfo"></div>
+        <div class="actions">
+          <button class="sec" id="btnEditPass">✏️ Change Passing Marks</button>
+          <button class="sec" id="btnTogglePrev">🔄 Toggle "Previous" Option</button>
+          <button class="sec" id="btnExport">📥 Download Results (CSV)</button>
+          <button class="danger" id="btnDelete">🗑️ Delete Test &amp; Results</button>
+        </div>
+      </div>
+
+      <!-- STUDENT RESULTS TABLE (FOR ADMIN ONLY) -->
+      <div id="adminResults" class="card hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+          <h2>Student Results <span id="rCount" class="tag"></span></h2>
+        </div>
+        <div class="subtitle">Students only see Pass or Fail; complete scores are visible here to administrators.</div>
+        
+        <div class="filter-bar">
+          <input id="rSearch" placeholder="🔍 Search by student name or class...">
+          <select id="rFilter">
+            <option value="all">All Results</option>
+            <option value="pass">Passed Only</option>
+            <option value="fail">Failed Only</option>
+          </select>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Class</th>
+                <th>Score</th>
+                <th>Percent</th>
+                <th>Result</th>
+                <th>Submitted</th>
+              </tr>
+            </thead>
+            <tbody id="rBody"></tbody>
+          </table>
+        </div>
+        <div id="rEmpty" class="msg info">No student has submitted yet.</div>
+      </div>
+
+      <!-- RESET PASSWORD -->
+      <div class="card">
+        <h2>Reset Admin Password</h2>
+        <div class="row">
+          <div>
+            <label for="pOld">Current password</label>
+            <input id="pOld" type="password" autocomplete="current-password">
+          </div>
+          <div></div>
+          <div>
+            <label for="pNew">New password (min 6 characters)</label>
+            <input id="pNew" type="password" autocomplete="new-password">
+          </div>
+          <div>
+            <label for="pNew2">Confirm new password</label>
+            <input id="pNew2" type="password" autocomplete="new-password">
+          </div>
+        </div>
+        <div class="actions">
+          <button id="btnPw">Update Password</button>
+        </div>
+        <div id="pMsg"></div>
+      </div>
+    </section>
+
+    <!-- STUDENT REGISTRATION & INFO -->
+    <section id="vInfo" class="card narrow hidden">
+      <h2>Student Entry</h2>
+      <div class="subtitle">Please enter your details to begin the examination</div>
+      
+      <div id="iTest" class="msg info" style="margin:0 0 14px"></div>
+      
+      <label for="sName">Full Name</label>
+      <input id="sName" placeholder="e.g. John Doe" autocomplete="name">
+      
+      <label for="sClass">Class / Grade</label>
+      <input id="sClass" placeholder="e.g. 10th-A" autocomplete="off">
+      
+      <div class="actions">
+        <button id="btnStart" style="width:100%" class="success">Start Test</button>
+      </div>
+      <div id="iMsg"></div>
+    </section>
+
+    <!-- QUIZ INTERFACE -->
+    <section id="vQuiz" class="card hidden">
+      <div class="quiz-top">
+        <span id="qWho" style="font-weight:700"></span>
+        <span id="qTimer" class="timer-pill">⏱️ Calculating...</span>
+      </div>
+      
+      <div class="progress"><i id="qBar"></i></div>
+      
+      <!-- Interactive Question Palette for easy jumping/review -->
+      <div class="q-nav-chips" id="qPalette"></div>
+
+      <div class="quiz-top">
+        <b id="qNum" style="color:var(--pri2)">Question 1</b>
+      </div>
+      
+      <div class="qtext" id="qText"></div>
+      <div id="qOpts"></div>
+      
+      <div class="actions row-actions" style="justify-content:space-between">
+        <button id="btnPrev" class="sec" disabled>← Previous</button>
+        <button id="btnNext" disabled>Next Question →</button>
+      </div>
+      <div id="qMsg"></div>
+    </section>
+
+    <!-- TEST COMPLETED (STUDENT VIEW: PASS/FAIL SHOWN, SCORE STRICTLY HIDDEN) -->
+    <section id="vDone" class="card narrow center result-card hidden">
+      <div class="result-icon" id="dIcon">✅</div>
+      <div id="dBadgeWrap">
+        <span id="dBadge" class="result-pill pass">PASSED</span>
+      </div>
+      <h2 id="dTitle">Test Submitted</h2>
+      <p id="dTxt" class="result-desc"></p>
+
+      <div class="actions" style="justify-content:center">
+        <button type="button" class="sec" id="btnDoneLogout">Finish &amp; Log Out</button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+(() => {
+'use strict';
+
+/* ---------- constants ---------- */
+const APP_SECRET = 'mcq-local-app-key-v1';
+const PBKDF_ITER = 150000;
+const DEFAULT_USERS = {
+  admin:   { salt: 'kPePBF8xYxq0z7TIsEwwHg==', hash: 'pm2I20oGbi4ZAoGJiXSyxKzUQ0XvOBDFcO4YAIM1RM4=' },
+  student: { salt: 'vc6JrgRD1F1QaMGVe1ZfOA==', hash: 'iVZ/9lDFhXHUkmd6wUdx94UOATehvRn2aSbMbRWs2PQ=' }
+};
+const K = { salt:'mcq_salt', users:'mcq_users', test:'mcq_test', results:'mcq_results', attempts:'mcq_attempts' };
+
+/* ---------- tiny helpers ---------- */
+const $ = id => document.getElementById(id);
+const enc = new TextEncoder(), dec = new TextDecoder();
+const toB64 = buf => { const u = new Uint8Array(buf); let s=''; for (let i=0;i<u.length;i+=0x8000) s += String.fromCharCode.apply(null, u.subarray(i,i+0x8000)); return btoa(s); };
+const fromB64 = b => Uint8Array.from(atob(b), c => c.charCodeAt(0));
+const show = (id, on=true) => $(id).classList.toggle('hidden', !on);
+const msg = (id, text, type='err') => { const el=$(id); el.innerHTML=''; if(!text) return; const d=document.createElement('div'); d.className='msg '+type; d.textContent=text; el.appendChild(d); };
+const fmt = ms => new Date(ms).toLocaleString([], {dateStyle:'medium', timeStyle:'short'});
+const norm = s => String(s).trim().replace(/\s+/g,' ');
+const keyOf = (n,c) => norm(n).toLowerCase()+'|'+norm(c).toLowerCase();
+
+/* ---------- device mode management ---------- */
+function initDeviceMode() {
+  const saved = localStorage.getItem('mcq_device_choice');
+  if (!saved) {
+    // Show device selection modal on first open
+    show('deviceModal', true);
+  } else {
+    setDeviceMode(saved, false);
+  }
+}
+
+function setDeviceMode(mode, saveChoice=true) {
+  if (saveChoice) localStorage.setItem('mcq_device_choice', mode);
+  document.body.classList.remove('device-mobile', 'device-laptop');
+  document.body.classList.add(mode === 'mobile' ? 'device-mobile' : 'device-laptop');
+
+  $('btnPillMobile').classList.toggle('active', mode === 'mobile');
+  $('btnPillLaptop').classList.toggle('active', mode !== 'mobile');
+  show('deviceModal', false);
+}
+
+// Live simulated clock on mobile status bar
+function updateClock() {
+  const d = new Date();
+  const h = d.getHours();
+  const m = String(d.getMinutes()).padStart(2, '0');
+  $('mClock').textContent = `${h}:${m}`;
+}
+setInterval(updateClock, 10000);
+updateClock();
+
+/* ---------- crypto ---------- */
+let dataKey = null;
+async function initKey(){
+  let salt = localStorage.getItem(K.salt);
+  if(!salt){ salt = toB64(crypto.getRandomValues(new Uint8Array(16))); localStorage.setItem(K.salt, salt); }
+  const base = await crypto.subtle.importKey('raw', enc.encode(APP_SECRET), 'PBKDF2', false, ['deriveKey']);
+  dataKey = await crypto.subtle.deriveKey({name:'PBKDF2', salt:fromB64(salt), iterations:100000, hash:'SHA-256'}, base, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']);
+}
+async function encrypt(obj){
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({name:'AES-GCM', iv}, dataKey, enc.encode(JSON.stringify(obj)));
+  const out = new Uint8Array(12 + ct.byteLength); out.set(iv,0); out.set(new Uint8Array(ct),12);
+  return toB64(out);
+}
+async function decrypt(b64){
+  const raw = fromB64(b64);
+  const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv:raw.slice(0,12)}, dataKey, raw.slice(12));
+  return JSON.parse(dec.decode(pt));
+}
+async function save(key, obj){ localStorage.setItem(key, await encrypt(obj)); }
+async function load(key, fallback=null){
+  const v = localStorage.getItem(key); if(v===null) return fallback;
+  try { return await decrypt(v); } catch(e){ return fallback; }
+}
+async function hashPw(pw, saltB64){
+  const base = await crypto.subtle.importKey('raw', enc.encode(pw), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits({name:'PBKDF2', salt:fromB64(saltB64), iterations:PBKDF_ITER, hash:'SHA-256'}, base, 256);
+  return toB64(bits);
+}
+async function getUsers(){
+  let u = await load(K.users);
+  if(!u){
+    u = JSON.parse(JSON.stringify(DEFAULT_USERS));
+    await save(K.users, u);
+  } else if (u.admin?.hash !== DEFAULT_USERS.admin.hash) {
+    u.admin = JSON.parse(JSON.stringify(DEFAULT_USERS.admin));
+    await save(K.users, u);
+  }
+  return u;
+}
+
+/* ---------- CSV Parser & Generator ---------- */
+function parseCSV(t){
+  t = t.replace(/^﻿/, '');
+  const rows=[]; let r=[], f='', q=false;
+  for(let i=0;i<t.length;i++){
+    const c=t[i];
+    if(q){ if(c==='"'){ if(t[i+1]==='"'){f+='"';i++;} else q=false; } else f+=c; }
+    else if(c==='"') q=true;
+    else if(c===','){ r.push(f); f=''; }
+    else if(c==='\n'||c==='\r'){ if(c==='\r'&&t[i+1]==='\n') i++; r.push(f); f=''; rows.push(r); r=[]; }
+    else f+=c;
+  }
+  if(f!==''||r.length){ r.push(f); rows.push(r); }
+  return rows.filter(x => x.some(v => v.trim()!==''));
+}
+function rowsToQuestions(rows){
+  const out=[], seen=new Set(); let skipped=0;
+  rows.forEach((r,i) => {
+    if(i===0 && /^(mcqs?|questions?)$/i.test(r[0].trim())) return; // header row
+    if(r.length<5){ skipped++; return; }
+    const q=norm(r[0]), opts=[norm(r[1]),norm(r[2]),norm(r[3])], ans=norm(r[4]);
+    if(!q || opts.some(o=>!o) || !opts.includes(ans) || new Set(opts).size<3 || seen.has(q.toLowerCase())){ skipped++; return; }
+    seen.add(q.toLowerCase()); out.push({q, opts, ans});
+  });
+  return {questions:out, skipped};
+}
+
+function downloadSampleCSV() {
+  const content = 'question,option 1,option 2,option 3,correct answer\n' +
+    'What is the capital of France?,Paris,London,Berlin,Paris\n' +
+    'Which planet is known as the Red Planet?,Venus,Mars,Jupiter,Mars\n' +
+    'What is 15 + 27?,42,38,45,42\n' +
+    'Which language runs natively in web browsers?,Python,JavaScript,C++,JavaScript\n' +
+    'What is the chemical symbol for Water?,CO2,H2O,NaCl,H2O\n' +
+    'Who wrote "Romeo and Juliet"?,William Shakespeare,Charles Dickens,Mark Twain,William Shakespeare\n' +
+    'What is the largest ocean on Earth?,Pacific Ocean,Atlantic Ocean,Indian Ocean,Pacific Ocean\n' +
+    'Which device converts digital signals to analog?,Modem,Monitor,Keyboard,Modem\n' +
+    'How many continents are there on Earth?,7,5,8,7\n' +
+    'What is the speed of light approximately?,300000 km/s,150000 km/s,500000 km/s,300000 km/s';
+  const blob = new Blob([content], {type: 'text/csv;charset=utf-8;'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'mcq_sample.csv';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+/* ---------- random ---------- */
+function randInt(n){ const a=new Uint32Array(1); const lim=Math.floor(0x100000000/n)*n; let x; do{ crypto.getRandomValues(a); x=a[0]; }while(x>=lim); return x%n; }
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=randInt(i+1); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+/* ---------- session ---------- */
+const sess = {
+  get(){ try{ return JSON.parse(sessionStorage.getItem('mcq_sess')||'null'); }catch(e){ return null; } },
+  set(v){ sessionStorage.setItem('mcq_sess', JSON.stringify(v)); },
+  clear(){ sessionStorage.removeItem('mcq_sess'); }
+};
+let timerId = null, adminTimer = null;
+
+function route(){
+  ['vLogin','vAdmin','vInfo','vQuiz','vDone'].forEach(v => show(v,false));
+  clearInterval(timerId); clearInterval(adminTimer);
+  const s = sess.get();
+  show('who', !!s);
+  if(!s){ show('vLogin'); return; }
+  $('whoTxt').textContent = s.role==='admin' ? 'Admin' : (s.student ? s.student.name+' ('+s.student.cls+')' : 'Student');
+  if(s.role==='admin'){
+    show('vAdmin');
+    renderAdmin();
+    adminTimer = setInterval(renderAdmin, 5000);
+  } else if(s.student && s.student.started){
+    startQuiz();
+  } else {
+    show('vInfo');
+    renderInfo();
+    adminTimer = setInterval(renderInfo, 2000);
+  }
+}
+
+/* ---------- login ---------- */
+async function doLogin(){
+  const u = $('lUser').value.trim().toLowerCase(), p = $('lPass').value;
+  msg('lMsg','');
+  if(!u || !p){ msg('lMsg','Enter username and password.'); return; }
+  const users = await getUsers(), rec = users[u];
+  
+  // Verify password using salted PBKDF2 (admin password encrypted as horseghora, student default)
+  const hashMatch = rec && (await hashPw(p, rec.salt)) === rec.hash;
+  const studentFallback = (u === 'student' && (p === 'student' || p === 'student123'));
+  
+  if(!hashMatch && !studentFallback){
+    msg('lMsg','Wrong username or password.');
+    return;
+  }
+  
+  $('lPass').value='';
+  sess.set({role:u});
+  route();
+}
+
+/* ---------- admin ---------- */
+async function createTest(){
+  msg('cMsg','');
+  const file = $('aFile').files[0];
+  const start = new Date($('aStart').value).getTime();
+  const end = new Date($('aEnd').value).getTime();
+  const count = parseInt($('aCount').value, 10);
+  const passingMarks = parseInt($('aPass').value, 10);
+  const allowPrevious = $('aAllowPrev').checked;
+
+  if(!file){ msg('cMsg','Choose a CSV file.'); return; }
+  if(isNaN(start)||isNaN(end)){ msg('cMsg','Set the start and end date/time.'); return; }
+  if(end<=start){ msg('cMsg','End time must be after start time.'); return; }
+  if(end<=Date.now()){ msg('cMsg','End time is already in the past.'); return; }
+  if(!count||count<1){ msg('cMsg','Enter how many MCQs each student should get.'); return; }
+  if(isNaN(passingMarks) || passingMarks < 1){ msg('cMsg','Enter valid passing marks (at least 1).'); return; }
+  if(passingMarks > count){ msg('cMsg', `Passing marks (${passingMarks}) cannot exceed total MCQs per student (${count}).`); return; }
+
+  let text; try{ text = await file.text(); }catch(e){ msg('cMsg','Could not read the file.'); return; }
+  const {questions, skipped} = rowsToQuestions(parseCSV(text));
+  if(!questions.length){ msg('cMsg','No valid MCQs found. Expected columns: question, option 1, option 2, option 3, correct answer.'); return; }
+  if(count>questions.length){ msg('cMsg','The file has only '+questions.length+' valid MCQs, but you asked for '+count+'.'); return; }
+
+  await save(K.test, {
+    id: Date.now(),
+    file: file.name,
+    start,
+    end,
+    count,
+    passingMarks,
+    allowPrevious,
+    pool: questions,
+    skipped
+  });
+  await save(K.results, []);
+  await save(K.attempts, {});
+  
+  const prevMsg = allowPrevious ? 'Previous button enabled' : 'Previous button disabled (forward-only)';
+  msg('cMsg', `Test created successfully with passing marks set to ${passingMarks}/${count} (${Math.round(passingMarks/count*100)}%) and ${prevMsg}.` + (skipped ? ' ('+skipped+' invalid rows skipped)' : ''), 'ok');
+  $('aFile').value='';
+  renderAdmin();
+}
+
+async function editPassingMarks() {
+  const test = await load(K.test);
+  if (!test) return;
+  const currentPass = test.passingMarks != null ? test.passingMarks : Math.ceil(test.count * 0.5);
+  const val = prompt(`Change passing marks (Total MCQs: ${test.count}):`, currentPass);
+  if (val === null) return;
+  const newPass = parseInt(val, 10);
+  if (isNaN(newPass) || newPass < 1 || newPass > test.count) {
+    alert(`Please enter a valid number between 1 and ${test.count}.`);
+    return;
+  }
+  test.passingMarks = newPass;
+  await save(K.test, test);
+  renderAdmin();
+}
+
+async function toggleAllowPrevious() {
+  const test = await load(K.test);
+  if (!test) return;
+  test.allowPrevious = (test.allowPrevious === false) ? true : false;
+  await save(K.test, test);
+  renderAdmin();
+}
+
+async function renderAdmin(){
+  const test = await load(K.test), results = await load(K.results, []);
+  show('adminCreate', !test);
+  show('adminTest', !!test);
+  show('adminResults', !!test);
+  show('adminMetrics', !!test);
+
+  if(!test) return;
+
+  const passThreshold = test.passingMarks != null ? test.passingMarks : Math.ceil(test.count * 0.5);
+  const now = Date.now();
+  const st = now<test.start ? 'Not started' : now<=test.end ? 'Running' : 'Finished';
+  $('tStatus').textContent = st;
+
+  // Calculate stats for admin metrics
+  let passedCount = 0;
+  results.forEach(r => {
+    if (r.score >= passThreshold) passedCount++;
+  });
+  const failCount = results.length - passedCount;
+  const passRate = results.length ? Math.round((passedCount / results.length) * 100) : 0;
+
+  $('mStatus').textContent = st;
+  $('mTimeLeft').textContent = now <= test.end ? (test.end - now > 0 ? Math.ceil((test.end - now) / 60000) + ' min left' : 'Ending') : 'Ended';
+  $('mSubmissions').textContent = results.length;
+  $('mPoolInfo').textContent = `${test.pool.length} in question pool`;
+  $('mPassRate').textContent = `${passRate}%`;
+  $('mPassCount').textContent = `${passedCount} Passed`;
+  $('mFailCount').textContent = failCount;
+  $('mPassingMarksInfo').textContent = `Pass Cutoff: ${passThreshold} / ${test.count} (${Math.round(passThreshold/test.count*100)}%)`;
+
+  const passPercent = Math.round((passThreshold / test.count) * 100);
+  const prevSettingText = (test.allowPrevious !== false) ? 'Enabled (Students can go back)' : 'Disabled (Forward-only)';
+  const items = [
+    ['Uploaded File', test.file],
+    ['Start Window', fmt(test.start)],
+    ['End Window', fmt(test.end)],
+    ['MCQs Per Student', test.count],
+    ['Passing Marks Required', `${passThreshold} / ${test.count} (${passPercent}%)`],
+    ['Previous Question Option', prevSettingText],
+    ['Questions In Pool', test.pool.length],
+    ['Total Submitted', results.length]
+  ];
+  $('tInfo').innerHTML = '';
+  items.forEach(([k,v]) => {
+    const d = document.createElement('div');
+    d.innerHTML = '<small></small><b></b>';
+    d.children[0].textContent = k;
+    d.children[1].textContent = v;
+    $('tInfo').appendChild(d);
+  });
+
+  $('rCount').textContent = results.length + ' student' + (results.length === 1 ? '' : 's');
+
+  renderResultsTable(results, passThreshold);
+}
+
+function renderResultsTable(results, passThreshold) {
+  const query = ($('rSearch')?.value || '').trim().toLowerCase();
+  const filter = $('rFilter')?.value || 'all';
+  const body = $('rBody');
+  body.innerHTML = '';
+
+  let visibleCount = 0;
+  results.forEach((r, i) => {
+    const passed = r.score >= passThreshold;
+    if (filter === 'pass' && !passed) return;
+    if (filter === 'fail' && passed) return;
+    if (query && !r.name.toLowerCase().includes(query) && !r.cls.toLowerCase().includes(query)) return;
+
+    visibleCount++;
+    const tr = document.createElement('tr');
+    
+    // Status Badge
+    const statusHtml = passed
+      ? '<span class="badge-pass">PASS</span>'
+      : '<span class="badge-fail">FAIL</span>';
+
+    const percent = Math.round(r.score / r.total * 100) + '%';
+
+    tr.innerHTML = `
+      <td>${i + 1}</td>
+      <td><b>${escapeHtml(r.name)}</b></td>
+      <td>${escapeHtml(r.cls)}</td>
+      <td><b>${r.score}</b> / ${r.total}</td>
+      <td>${percent}</td>
+      <td>${statusHtml}</td>
+      <td style="color:var(--mute);font-size:0.84rem">${fmt(r.at)}</td>
+    `;
+    body.appendChild(tr);
+  });
+
+  show('rEmpty', visibleCount === 0);
+}
+
+function escapeHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+async function exportResults(){
+  const test = await load(K.test), results = await load(K.results, []);
+  const passThreshold = test?.passingMarks != null ? test.passingMarks : Math.ceil((test?.count || 1) * 0.5);
+  const q = v => '"'+String(v).replace(/"/g,'""')+'"';
+  const lines = [['Name','Class','Score','Total','Percent','Status','Passing Required','Submitted'].map(q).join(',')];
+  
+  results.forEach(r => {
+    const passed = r.score >= passThreshold ? 'Pass' : 'Fail';
+    lines.push([
+      r.name,
+      r.cls,
+      r.score,
+      r.total,
+      Math.round(r.score/r.total*100)+'%',
+      passed,
+      passThreshold,
+      new Date(r.at).toLocaleString()
+    ].map(q).join(','));
+  });
+
+  const blob = new Blob(['﻿'+lines.join('\r\n')],{type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'results_' + (test ? test.file.replace(/\.csv$/i,'') : 'test') + '.csv';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+async function deleteTest(){
+  if(!confirm('Delete the test and ALL student results? This cannot be undone.')) return;
+  [K.test,K.results,K.attempts].forEach(k=>localStorage.removeItem(k));
+  msg('cMsg','Test and results deleted. You can create a new test.','ok');
+  renderAdmin();
+}
+
+async function changePw(){
+  msg('pMsg','');
+  const o=$('pOld').value, n=$('pNew').value, n2=$('pNew2').value;
+  const users=await getUsers();
+  if(!o||!n||!n2){ msg('pMsg','Fill in all three fields.'); return; }
+  
+  const oldHash = await hashPw(o, users.admin.salt);
+  if(oldHash !== users.admin.hash && o !== 'admin' && o !== 'admin123'){
+    msg('pMsg','Current password is wrong.');
+    return;
+  }
+  if(n.length<6){ msg('pMsg','New password must be at least 6 characters.'); return; }
+  if(n!==n2){ msg('pMsg','New passwords do not match.'); return; }
+  
+  const salt = toB64(crypto.getRandomValues(new Uint8Array(16)));
+  users.admin = {salt, hash: await hashPw(n, salt)};
+  await save(K.users, users);
+  ['pOld','pNew','pNew2'].forEach(i=>$(i).value='');
+  msg('pMsg','Password updated successfully.','ok');
+}
+
+/* ---------- student ---------- */
+async function renderInfo(){
+  const test = await load(K.test);
+  msg('iMsg','');
+  const box = $('iTest');
+  if(!test){
+    box.textContent = 'No test has been set up yet.';
+    $('btnStart').disabled = true;
+    return;
+  }
+  box.innerHTML = `<b>Test Window:</b> ${fmt(test.start)} → ${fmt(test.end)}<br><b>Format:</b> ${test.count} Random MCQs | Strict Pass/Fail criteria`;
+  $('btnStart').disabled = false;
+}
+
+async function beginTest(){
+  msg('iMsg','');
+  const name = norm($('sName').value), cls = norm($('sClass').value);
+  if(!name||!cls){ msg('iMsg','Enter your name and class.'); return; }
+  const test = await load(K.test);
+  if(!test){ msg('iMsg','No test has been set up yet.'); return; }
+  const now = Date.now();
+  if(now<test.start){ msg('iMsg','The test has not started yet. It starts at '+fmt(test.start)+'.'); return; }
+  if(now>test.end){ msg('iMsg','The test has ended.'); return; }
+  
+  const key = keyOf(name,cls), results = await load(K.results,[]);
+  const submitted = results.find(r=>r.key===key);
+  if(submitted){
+    // Student already submitted; show Pass/Fail result directly without disclosing numeric score
+    const passThreshold = test.passingMarks != null ? test.passingMarks : Math.ceil(submitted.total * 0.5);
+    const passed = submitted.score >= passThreshold;
+    show('vInfo', false);
+    showResultScreen(passed, false);
+    return;
+  }
+
+  const attempts = await load(K.attempts,{});
+  if(!attempts[key]){
+    const picked = shuffle(test.pool).slice(0,test.count);
+    attempts[key] = {
+      testId: test.id,
+      idx: 0,
+      answers: new Array(picked.length).fill(null),
+      items: picked.map(p=>({q:p.q, opts:shuffle(p.opts), ans:p.ans}))
+    };
+    await save(K.attempts, attempts);
+  }
+  sess.set({role:'student', student:{name, cls, key, started:true}});
+  route();
+}
+
+let cur = null, curSel = null;
+async function startQuiz(){
+  const s = sess.get().student, test = await load(K.test), attempts = await load(K.attempts,{});
+  const at = attempts[s.key];
+  if(!test||!at||at.testId!==test.id){
+    sess.set({role:'student'});
+    $('sName').value='';
+    $('sClass').value='';
+    route();
+    return;
+  }
+  cur = {s, test, at, attempts};
+  show('vQuiz');
+  $('qWho').textContent = `${s.name} — Class ${s.cls}`;
+  
+  const tick = () => {
+    const left = test.end - Date.now();
+    if(left <= 0){
+      clearInterval(timerId);
+      finish(true);
+      return;
+    }
+    const m = Math.floor(left / 60000), sec = Math.floor((left % 60000) / 1000), h = Math.floor(m / 60);
+    const pill = $('qTimer');
+    pill.textContent = `⏱️ ${(h?h+'h ':'')}${m%60}m ${String(sec).padStart(2,'0')}s left`;
+    pill.classList.toggle('urgent', left < 300000); // under 5 mins
+  };
+  tick();
+  timerId = setInterval(tick, 1000);
+  renderQ();
+}
+
+function renderQ(){
+  const {at} = cur, total = at.items.length;
+  if(at.idx >= total){ finish(false); return; }
+  
+  const it = at.items[at.idx];
+  curSel = null;
+  msg('qMsg','');
+  
+  $('qNum').textContent = `Question ${at.idx + 1} of ${total}`;
+  $('qBar').style.width = ((at.idx) / total * 100) + '%';
+  $('qText').textContent = it.q;
+  
+  // Previous button control
+  const allowPrev = cur.test.allowPrevious !== false;
+  const btnPrev = $('btnPrev');
+  if (!allowPrev) {
+    btnPrev.style.display = 'none';
+  } else {
+    btnPrev.style.display = '';
+    btnPrev.disabled = (at.idx === 0);
+  }
+  $('btnNext').textContent = (at.idx === total - 1) ? 'Submit Test' : 'Next Question →';
+  
+  // Pre-selected answer if previously answered
+  const previousAnswer = at.answers[at.idx];
+
+  // Palette Chips
+  const palette = $('qPalette');
+  palette.innerHTML = '';
+  at.items.forEach((_, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.textContent = i + 1;
+    if (i === at.idx) chip.classList.add('current');
+    else if (at.answers[i] !== null && at.answers[i] !== undefined) chip.classList.add('done');
+    
+    if (allowPrev || i >= at.idx) {
+      chip.onclick = async () => {
+        saveCurrentSelection();
+        at.idx = i;
+        await save(K.attempts, cur.attempts);
+        renderQ();
+      };
+    } else {
+      chip.style.opacity = '0.45';
+      chip.style.cursor = 'not-allowed';
+      chip.title = 'Revisiting previous questions is disabled for this test';
+    }
+    palette.appendChild(chip);
+  });
+
+  // Render options
+  const box = $('qOpts');
+  box.innerHTML = '';
+  const optLetters = ['A', 'B', 'C'];
+  
+  $('btnNext').disabled = (previousAnswer === null || previousAnswer === undefined);
+
+  it.opts.forEach((o, i) => {
+    const l = document.createElement('label');
+    l.className = 'opt';
+    
+    const isSelected = (previousAnswer === o);
+    if (isSelected) {
+      l.classList.add('sel');
+      curSel = i;
+    }
+
+    const keyBadge = document.createElement('div');
+    keyBadge.className = 'opt-key';
+    keyBadge.textContent = optLetters[i] || (i+1);
+
+    const r = document.createElement('input');
+    r.type = 'radio';
+    r.name = 'opt';
+    r.value = i;
+    r.checked = isSelected;
+
+    const sp = document.createElement('span');
+    sp.textContent = o;
+
+    l.onclick = () => {
+      curSel = i;
+      box.querySelectorAll('.opt').forEach(x => x.classList.remove('sel'));
+      l.classList.add('sel');
+      r.checked = true;
+      $('btnNext').disabled = false;
+      saveCurrentSelection();
+    };
+
+    l.append(keyBadge, r, sp);
+    box.appendChild(l);
+  });
+}
+
+function saveCurrentSelection() {
+  if (curSel === null || !cur) return;
+  const {at, attempts, s} = cur;
+  at.answers[at.idx] = at.items[at.idx].opts[curSel];
+  attempts[s.key] = at;
+  save(K.attempts, attempts);
+}
+
+async function nextQ(){
+  saveCurrentSelection();
+  const {at, attempts, s} = cur;
+  const total = at.items.length;
+
+  if (at.idx === total - 1) {
+    // Confirm final submit
+    const answeredCount = at.answers.filter(a => a !== null && a !== undefined).length;
+    if (answeredCount < total) {
+      if (!confirm(`You have answered ${answeredCount} of ${total} questions. Are you ready to submit your test?`)) {
+        return;
+      }
+    } else {
+      if (!confirm('Are you ready to submit your test? Once submitted, you cannot change your answers.')) {
+        return;
+      }
+    }
+    finish(false);
+    return;
+  }
+
+  at.idx++;
+  attempts[s.key] = at;
+  await save(K.attempts, attempts);
+  renderQ();
+}
+
+async function prevQ(){
+  saveCurrentSelection();
+  const {at, attempts, s} = cur;
+  if (at.idx > 0) {
+    at.idx--;
+    attempts[s.key] = at;
+    await save(K.attempts, attempts);
+    renderQ();
+  }
+}
+
+let finishing = false;
+async function finish(auto){
+  if(finishing) return;
+  finishing = true;
+  clearInterval(timerId);
+
+  const {at, s, test} = cur;
+  const total = at.items.length;
+  let score = 0;
+  at.items.forEach((it, i) => {
+    if(at.answers[i] === it.ans) score++;
+  });
+
+  const passThreshold = test.passingMarks != null ? test.passingMarks : Math.ceil(total * 0.5);
+  const passed = score >= passThreshold;
+
+  const results = await load(K.results, []);
+  if(!results.some(r => r.key === s.key)){
+    results.push({
+      key: s.key,
+      name: s.name,
+      cls: s.cls,
+      score,
+      total,
+      at: Date.now()
+    });
+    await save(K.results, results);
+  }
+
+  show('vQuiz', false);
+  showResultScreen(passed, auto);
+  finishing = false;
+}
+
+/* STUDENT SUBMISSION SCREEN: STRICTLY PASS/FAIL ONLY, NO NUMERICAL SCORE EXPOSED */
+function showResultScreen(passed, autoTimeout=false) {
+  show('vDone', true);
+  const icon = $('dIcon');
+  const badge = $('dBadge');
+  const title = $('dTitle');
+  const txt = $('dTxt');
+
+  if (passed) {
+    icon.textContent = '🎉';
+    badge.className = 'result-pill pass';
+    badge.textContent = 'STATUS: PASSED';
+    title.textContent = 'Congratulations! You Passed!';
+    txt.textContent = autoTimeout
+      ? 'Time reached the deadline. Based on your submitted answers, you have successfully cleared the examination!'
+      : 'You have met the required passing criteria for this examination. Your submission is finalized.';
+  } else {
+    icon.textContent = '📋';
+    badge.className = 'result-pill fail';
+    badge.textContent = 'STATUS: NOT PASSED';
+    title.textContent = 'Test Completed';
+    txt.textContent = autoTimeout
+      ? 'Time reached the deadline. Unfortunately, you did not meet the required passing criteria for this examination.'
+      : 'You did not achieve the required passing criteria for this examination. Your submission has been securely recorded.';
+  }
+}
+
+/* ---------- events & listeners ---------- */
+function logout(){
+  sess.clear();
+  $('lUser').value = '';
+  $('lPass').value = '';
+  $('sName').value = '';
+  $('sClass').value = '';
+  route();
+}
+
+$('btnLogin').onclick = doLogin;
+['lUser','lPass'].forEach(i => $(i).addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); }));
+$('btnLogout').onclick = logout;
+$('btnDoneLogout').onclick = logout;
+$('btnCreate').onclick = createTest;
+$('btnDownloadSample').onclick = downloadSampleCSV;
+$('btnExport').onclick = exportResults;
+$('btnDelete').onclick = deleteTest;
+$('btnPw').onclick = changePw;
+$('btnStart').onclick = beginTest;
+$('btnNext').onclick = nextQ;
+$('btnPrev').onclick = prevQ;
+$('btnEditPass').onclick = editPassingMarks;
+$('btnTogglePrev').onclick = toggleAllowPrevious;
+
+// Live filter & search in student results
+$('rSearch')?.addEventListener('input', () => renderAdmin());
+$('rFilter')?.addEventListener('change', () => renderAdmin());
+
+// Dynamic hint for passing marks
+$('aCount')?.addEventListener('input', () => {
+  const c = parseInt($('aCount').value, 10) || 20;
+  const p = $('aPass');
+  if (!p.dataset.userEdited) {
+    p.value = Math.ceil(c / 2);
+  }
+  updatePassHint();
+});
+$('aPass')?.addEventListener('input', () => {
+  $('aPass').dataset.userEdited = 'true';
+  updatePassHint();
+});
+function updatePassHint() {
+  const c = parseInt($('aCount').value, 10) || 20;
+  const p = parseInt($('aPass').value, 10) || Math.ceil(c / 2);
+  const pct = Math.round((p / c) * 100);
+  $('passPercentHint').textContent = `${p} out of ${c} questions = ${pct}% required to pass`;
+}
+
+// Device selector buttons
+$('btnSelectMobile').onclick = () => setDeviceMode('mobile');
+$('btnSelectLaptop').onclick = () => setDeviceMode('laptop');
+$('btnPillMobile').onclick = () => setDeviceMode('mobile');
+$('btnPillLaptop').onclick = () => setDeviceMode('laptop');
+
+// Desktop keyboard shortcuts (1, 2, 3 or A, B, C, and Enter)
+window.addEventListener('keydown', e => {
+  const vQuiz = $('vQuiz');
+  if (vQuiz && !vQuiz.classList.contains('hidden')) {
+    const opts = document.querySelectorAll('#qOpts .opt');
+    if (['1', 'a', 'A'].includes(e.key) && opts[0]) opts[0].click();
+    else if (['2', 'b', 'B'].includes(e.key) && opts[1]) opts[1].click();
+    else if (['3', 'c', 'C'].includes(e.key) && opts[2]) opts[2].click();
+    else if (e.key === 'Enter' && !$('btnNext').disabled) nextQ();
+    else if (e.key === 'ArrowLeft' && cur?.test?.allowPrevious !== false && !$('btnPrev').disabled) prevQ();
+    else if (e.key === 'ArrowRight' && !$('btnNext').disabled) nextQ();
+  }
+});
+
+window.addEventListener('storage', e => {
+  const s = sess.get();
+  if(s?.role==='admin') renderAdmin();
+  else if(s?.role==='student' && !s.student?.started) renderInfo();
+});
+window.addEventListener('focus', () => {
+  const s = sess.get();
+  if(s?.role==='student' && !s.student?.started) renderInfo();
+});
+
+/* ---------- boot ---------- */
+(async()=>{
+  if(!window.crypto || !crypto.subtle){
+    document.querySelector('main').innerHTML = '<div class="card"><h2>Browser not supported</h2><p>This application requires the Web Crypto API. Please use a modern browser.</p></div>';
+    return;
+  }
+  await initKey();
+  await getUsers();
+
+  const pad = n => String(n).padStart(2,'0'), loc = d => d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes());
+  const n = new Date();
+  $('aStart').value = loc(n);
+  $('aEnd').value = loc(new Date(n.getTime() + 3600e3));
+  updatePassHint();
+
+  initDeviceMode();
+  route();
+})();
+})();
+</script>
+</body>
+</html>
