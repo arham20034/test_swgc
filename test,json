@@ -1,0 +1,9 @@
+
+{
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/MCQ_Test_System.html"
+    }
+  ]
+}
